@@ -1,0 +1,337 @@
+<title>Parihara Seal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Tamma+2:wght@500;600;700;800&family=JetBrains+Mono:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#150F2E;
+    --ink-2:#201849;
+    --ink-3:#2b2260;
+    --gold:#D6A544;
+    --gold-bright:#F2C868;
+    --cream:#F3ECDD;
+    --sage:#5C9A76;
+    --muted:#8B84A8;
+    --line:rgba(214,165,68,.22);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    min-height:100dvh;
+    background:var(--ink);
+    background-image:
+      radial-gradient(circle at 50% 15%, rgba(214,165,68,.14), transparent 55%),
+      radial-gradient(circle at 1px 1px, rgba(243,236,221,.06) 1px, transparent 0);
+    background-size:auto, 28px 28px;
+    color:var(--cream);
+    font-family:'Manrope',system-ui,sans-serif;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:38px 24px 30px;
+    position:relative;
+    overflow-x:hidden;
+  }
+  button{font-family:inherit;}
+  :focus-visible{outline:2px solid var(--gold-bright); outline-offset:3px;}
+  .kn{font-family:'Baloo Tamma 2','Noto Sans Kannada',sans-serif;}
+
+  .corner-mark{position:fixed; top:16px; left:20px; z-index:5; display:flex; flex-direction:column; align-items:center; gap:6px;}
+  .chairman-photo{width:56px; height:56px; border-radius:50%; object-fit:cover; border:2px solid var(--gold-bright); box-shadow:0 4px 14px rgba(0,0,0,.45);}
+  .corner-date{font-size:.6rem; letter-spacing:.07em; text-transform:uppercase; color:var(--muted); text-align:center; white-space:nowrap;}
+
+  .stage{width:100%; max-width:min(1560px,94vw); display:flex; flex-direction:column; align-items:center; text-align:center; gap:26px;}
+
+  /* ---------- idle ---------- */
+  #stage-idle{transition:opacity .4s ease, transform .4s ease;}
+  #stage-idle.leaving{opacity:0; transform:scale(1.03);}
+
+  .title-block{display:flex; flex-direction:column; align-items:center; gap:8px;}
+  .org-logo{height:52px; width:auto; margin-bottom:8px; filter:drop-shadow(0 4px 10px rgba(0,0,0,.35));}
+  .org-line1{font-family:'Manrope'; font-weight:600; font-size:clamp(.8rem,1.4vw,.95rem); letter-spacing:.03em; color:var(--cream);}
+  .org-line2{font-weight:700; font-size:clamp(1.7rem,3.6vw,2.5rem); color:var(--gold-bright); text-wrap:balance;}
+
+  .seal-wrap{position:relative; display:flex; align-items:center; justify-content:center;}
+  .seal-btn{
+    position:relative; width:clamp(210px,26vw,300px); height:clamp(210px,26vw,300px);
+    border-radius:50%; border:none; cursor:pointer;
+    background:radial-gradient(circle at 34% 30%, var(--gold-bright), var(--gold) 55%, #A9782E 100%);
+    box-shadow:0 0 0 6px rgba(214,165,68,.15), 0 22px 60px rgba(0,0,0,.55),
+      inset 0 -8px 16px rgba(0,0,0,.35), inset 0 7px 10px rgba(255,255,255,.28);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
+    transition:transform .15s ease, box-shadow .15s ease;
+    animation:breathe 3.4s ease-in-out infinite;
+  }
+  .seal-btn:hover{transform:scale(1.02);}
+  .seal-btn.pressed{transform:scale(.92) !important; box-shadow:0 0 0 6px rgba(214,165,68,.15), 0 8px 18px rgba(0,0,0,.5), inset 0 8px 16px rgba(0,0,0,.5) !important;}
+  @keyframes breathe{
+    0%,100%{box-shadow:0 0 0 6px rgba(214,165,68,.15),0 22px 60px rgba(0,0,0,.55),inset 0 -8px 16px rgba(0,0,0,.35),inset 0 7px 10px rgba(255,255,255,.28);}
+    50%{box-shadow:0 0 0 15px rgba(214,165,68,.07),0 22px 72px rgba(0,0,0,.6),inset 0 -8px 16px rgba(0,0,0,.35),inset 0 7px 10px rgba(255,255,255,.32);}
+  }
+  .seal-btn .kn-word{font-family:'Baloo Tamma 2'; font-weight:700; font-size:clamp(1.5rem,2.6vw,1.95rem); color:#241A05;}
+  .seal-btn .en-word{font-family:'JetBrains Mono'; letter-spacing:.09em; font-size:.68rem; text-transform:uppercase; color:#3B2A0C; font-weight:600;}
+  .ring{position:absolute; inset:-18px; border-radius:50%; border:1px dashed rgba(214,165,68,.35); animation:spin 26s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .press-hint{font-size:.85rem; color:var(--muted);}
+
+  /* ---------- ripple ---------- */
+  .ripple-circle{
+    position:fixed; width:10px; height:10px; border-radius:50%;
+    background:radial-gradient(circle, var(--gold-bright), var(--gold) 55%, var(--cream) 100%);
+    transform:translate(-50%,-50%) scale(0);
+    z-index:40; pointer-events:none;
+    transition:transform 900ms cubic-bezier(.16,.84,.2,1), opacity 500ms ease;
+  }
+  .ripple-circle.active{transform:translate(-50%,-50%) scale(var(--scale));}
+  .ripple-circle.fading{opacity:0;}
+
+  /* ---------- result ---------- */
+  #stage-result{display:none; flex-direction:column; align-items:center; gap:14px;}
+  #stage-result.show{display:flex;}
+  .result-header{display:flex; flex-direction:column; align-items:center; gap:4px;}
+  .result-header .org-logo{height:32px; margin-bottom:0;}
+  .result-header .org-line1{font-size:.7rem;}
+  .amount-eyebrow{font-family:'Baloo Tamma 2'; font-size:clamp(.95rem,1.5vw,1.15rem); color:var(--gold-bright); letter-spacing:.02em;}
+  .amount{
+    font-family:'JetBrains Mono'; font-weight:700; font-size:clamp(2.6rem,6.5vw,5.2rem);
+    color:var(--gold-bright); text-shadow:0 0 40px rgba(242,200,104,.4);
+    font-variant-numeric:tabular-nums; letter-spacing:-.02em; line-height:1;
+  }
+  .stat-row{display:flex; gap:16px; flex-wrap:wrap; justify-content:center;}
+  .stat-tile{background:var(--ink-2); border:1px solid var(--line); border-radius:14px; padding:10px 22px; min-width:130px;}
+  .stat-value{font-family:'JetBrains Mono'; font-weight:700; font-size:1.4rem; color:var(--cream); font-variant-numeric:tabular-nums;}
+  .stat-label{font-family:'Manrope'; font-size:.65rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-top:3px;}
+
+  .declaration-block{display:flex; flex-direction:column; align-items:center; gap:7px; margin-top:2px;}
+  .declaration{font-family:'Baloo Tamma 2'; font-weight:800; font-size:clamp(1.6rem,3.6vw,2.6rem); color:var(--cream); text-wrap:balance; opacity:0; animation:riseIn .55s ease forwards; animation-delay:.15s;}
+  .underline-draw{height:3px; width:0; background:linear-gradient(90deg,var(--gold),var(--sage)); border-radius:2px; animation:drawLine .6s ease forwards; animation-delay:.75s;}
+  @keyframes drawLine{to{width:min(300px,60vw);}}
+  .subtext{font-size:.92rem; color:var(--muted); max-width:560px; opacity:0; animation:riseIn .5s ease forwards; animation-delay:.9s;}
+  @keyframes riseIn{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);}}
+
+  .taluk-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:10px; width:100%; max-width:1120px; margin:2px auto 0;}
+  .taluk-chip{
+    background:var(--ink-2); border:1px solid var(--line); border-radius:12px; padding:10px 14px;
+    display:flex; flex-direction:column; gap:3px; text-align:left;
+    opacity:0; transform:translateY(8px) scale(.92);
+    animation:stampIn .45s cubic-bezier(.22,.9,.32,1.2) both;
+  }
+  @keyframes stampIn{to{opacity:1; transform:translateY(0) scale(1);}}
+  .taluk-name{font-family:'Baloo Tamma 2','Noto Sans Kannada',sans-serif; font-size:.9rem; color:var(--cream);}
+  .taluk-meta{font-family:'JetBrains Mono'; font-size:.68rem; color:var(--gold-bright); display:flex; align-items:center; gap:5px;}
+  .taluk-check{opacity:0; display:inline-block; animation:popCheck .3s ease forwards;}
+  @keyframes popCheck{from{opacity:0; transform:scale(.4);} to{opacity:1; transform:scale(1);}}
+
+  .confetti-layer{position:fixed; inset:0; pointer-events:none; z-index:35; overflow:hidden;}
+  .confetti-piece{position:absolute; top:-8%; border-radius:2px; animation-name:fall; animation-timing-function:linear; animation-fill-mode:forwards;}
+  @keyframes fall{to{transform:translateY(115vh) rotate(280deg); opacity:.15;}}
+
+  .replay-btn{
+    position:fixed; bottom:16px; right:18px; z-index:50;
+    background:transparent; border:1px solid rgba(243,236,221,.25); color:var(--muted);
+    font-size:.68rem; letter-spacing:.08em; text-transform:uppercase; padding:7px 14px; border-radius:999px;
+    cursor:pointer; opacity:.32; transition:opacity .2s ease, color .2s ease, border-color .2s ease;
+  }
+  .replay-btn:hover, .replay-btn:focus-visible{opacity:1; color:var(--cream); border-color:rgba(243,236,221,.5);}
+
+  @media (max-width:900px){
+    .taluk-grid{grid-template-columns:repeat(4,1fr);}
+  }
+  @media (max-width:520px){
+    .stat-tile{min-width:100px; padding:10px 14px;}
+    .taluk-grid{grid-template-columns:repeat(2,1fr);}
+  }
+</style>
+
+<div class="corner-mark">
+  <img class="chairman-photo" id="chairmanPhoto" alt="Chairman" onerror="this.style.display='none'">
+  <div class="corner-date" id="cornerDate"></div>
+</div>
+
+<div class="stage">
+  <div id="stage-idle">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:26px;">
+      <div class="title-block">
+        <img class="org-logo" src="assets/bamul-logo.png" alt="BAMUL logo" onerror="this.style.display='none'">
+        <div class="org-line1" id="orgLine1"></div>
+        <div class="org-line2 kn" id="orgLine2"></div>
+      </div>
+      <div class="seal-wrap">
+        <div class="ring" aria-hidden="true"></div>
+        <button class="seal-btn" id="sealBtn" aria-label="Initiate bank transfer">
+          <span class="kn-word" id="btnKn"></span>
+          <span class="en-word" id="btnEn"></span>
+        </button>
+      </div>
+      <div class="press-hint">Press the seal to initiate the transfer</div>
+    </div>
+  </div>
+
+  <div id="stage-result">
+    <div class="result-header">
+      <img class="org-logo" src="assets/bamul-logo.png" alt="BAMUL logo" onerror="this.style.display='none'">
+      <div class="org-line1" id="orgLine1Result"></div>
+    </div>
+    <div class="amount-eyebrow kn" id="amountEyebrow"></div>
+    <div class="amount" id="amountEl">₹0</div>
+    <div class="stat-row">
+      <div class="stat-tile"><div class="stat-value" id="statBenef">0</div><div class="stat-label">Beneficiaries</div></div>
+      <div class="stat-tile"><div class="stat-value" id="statTaluks">0</div><div class="stat-label">Taluks</div></div>
+      <div class="stat-tile"><div class="stat-value" id="statSocieties">0</div><div class="stat-label">Societies</div></div>
+    </div>
+    <div class="declaration-block">
+      <div class="declaration" id="declarationEn"></div>
+      <div class="underline-draw"></div>
+      <div class="subtext" id="declarationSub"></div>
+    </div>
+    <div class="taluk-grid" id="talukGrid"></div>
+  </div>
+</div>
+
+<button class="replay-btn" id="replayBtn">&#8635; Reset</button>
+
+<script src="content.js"></script>
+<script>
+  var C = window.BAMUL_CONTENT;
+  var taluks = C.taluks;
+  var TOTAL_AMOUNT = C.totals.amount;
+  var TOTAL_BENEF = C.totals.beneficiaries;
+  var fmt = new Intl.NumberFormat('en-IN');
+
+  document.getElementById('chairmanPhoto').src = C.org.chairmanPhoto;
+  document.getElementById('cornerDate').textContent = C.org.eventDate;
+  document.getElementById('orgLine1').textContent = C.org.line1;
+  document.getElementById('orgLine1Result').textContent = C.org.line1;
+  document.getElementById('orgLine2').textContent = C.org.lineCombined;
+  document.getElementById('btnKn').textContent = C.button.kn;
+  document.getElementById('btnEn').textContent = C.button.en;
+  document.getElementById('amountEyebrow').textContent = C.amountEyebrow;
+  document.getElementById('declarationEn').textContent = C.declaration.en;
+  document.getElementById('declarationSub').textContent = C.declaration.sub;
+  document.getElementById('statTaluks').textContent = fmt.format(C.totals.taluks);
+  document.getElementById('statSocieties').textContent = fmt.format(C.totals.societies);
+
+  var sealBtn = document.getElementById('sealBtn');
+  var idleStage = document.getElementById('stage-idle');
+  var resultStage = document.getElementById('stage-result');
+  var amountEl = document.getElementById('amountEl');
+  var statBenef = document.getElementById('statBenef');
+  var talukGrid = document.getElementById('talukGrid');
+  var replayBtn = document.getElementById('replayBtn');
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var ripple = null;
+  var running = false;
+
+  function buildTalukGrid(){
+    talukGrid.innerHTML = '';
+    taluks.forEach(function(t, i){
+      var chip = document.createElement('div');
+      chip.className = 'taluk-chip';
+      chip.style.animationDelay = (reduced ? 0 : (i * 70 + 200)) + 'ms';
+      chip.innerHTML =
+        '<span class="taluk-name">' + t.kn + '</span>' +
+        '<span class="taluk-meta"><span class="taluk-check" style="animation-delay:' + ((reduced?0:(i*70+450))) + 'ms">&#10003;</span>' +
+        t.claims + ' claims &middot; ₹' + fmt.format(t.amount) + '</span>';
+      talukGrid.appendChild(chip);
+    });
+  }
+
+  function spawnConfetti(){
+    if(reduced) return;
+    var layer = document.createElement('div');
+    layer.className = 'confetti-layer';
+    layer.id = 'confettiLayer';
+    var colors = ['#D6A544','#F2C868','#F3ECDD','#5C9A76'];
+    for(var i=0;i<40;i++){
+      var p = document.createElement('span');
+      p.className = 'confetti-piece';
+      var size = 6 + Math.random()*7;
+      p.style.width = size + 'px';
+      p.style.height = (size*0.4) + 'px';
+      p.style.left = (Math.random()*100) + '%';
+      p.style.background = colors[Math.floor(Math.random()*colors.length)];
+      p.style.animationDuration = (2.2 + Math.random()*1.8) + 's';
+      p.style.animationDelay = (Math.random()*0.6) + 's';
+      layer.appendChild(p);
+    }
+    document.body.appendChild(layer);
+    setTimeout(function(){ if(layer.parentNode) layer.parentNode.removeChild(layer); }, 4600);
+  }
+
+  function countUp(el, target, duration, prefix){
+    var start = performance.now();
+    function tick(now){
+      var p = Math.min(1, (now - start) / duration);
+      var eased = 1 - Math.pow(1 - p, 3);
+      var val = Math.round(target * eased);
+      el.textContent = prefix + fmt.format(val);
+      if(p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  function showResult(){
+    buildTalukGrid();
+    resultStage.classList.add('show');
+    if(reduced){
+      amountEl.textContent = '₹' + fmt.format(TOTAL_AMOUNT);
+      statBenef.textContent = fmt.format(TOTAL_BENEF);
+    } else {
+      countUp(amountEl, TOTAL_AMOUNT, 1400, '₹');
+      countUp(statBenef, TOTAL_BENEF, 1100, '');
+      spawnConfetti();
+    }
+  }
+
+  function triggerTransfer(){
+    if(running) return;
+    running = true;
+    sealBtn.classList.add('pressed');
+
+    if(reduced){
+      idleStage.style.display = 'none';
+      showResult();
+      return;
+    }
+
+    setTimeout(function(){
+      idleStage.classList.add('leaving');
+      var rect = sealBtn.getBoundingClientRect();
+      var cx = rect.left + rect.width/2, cy = rect.top + rect.height/2;
+      var maxDist = Math.hypot(Math.max(cx, window.innerWidth-cx), Math.max(cy, window.innerHeight-cy));
+      ripple = document.createElement('div');
+      ripple.className = 'ripple-circle';
+      ripple.style.left = cx + 'px';
+      ripple.style.top = cy + 'px';
+      ripple.style.setProperty('--scale', (maxDist * 2.3 / 10));
+      document.body.appendChild(ripple);
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){ ripple.classList.add('active'); });
+      });
+
+      setTimeout(function(){
+        idleStage.style.display = 'none';
+        showResult();
+        ripple.classList.add('fading');
+        setTimeout(function(){ if(ripple && ripple.parentNode) ripple.parentNode.removeChild(ripple); }, 520);
+      }, 900);
+    }, 160);
+  }
+
+  function resetAll(){
+    running = false;
+    sealBtn.classList.remove('pressed');
+    idleStage.classList.remove('leaving');
+    idleStage.style.display = '';
+    resultStage.classList.remove('show');
+    amountEl.textContent = '₹0';
+    statBenef.textContent = '0';
+    var layer = document.getElementById('confettiLayer');
+    if(layer && layer.parentNode) layer.parentNode.removeChild(layer);
+    if(ripple && ripple.parentNode) ripple.parentNode.removeChild(ripple);
+    ripple = null;
+  }
+
+  sealBtn.addEventListener('click', triggerTransfer);
+  replayBtn.addEventListener('click', resetAll);
+</script>

@@ -1,0 +1,368 @@
+<title>Relief Network</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Kannada:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#071018;
+    --panel:#0E1E27;
+    --panel-2:#122834;
+    --cyan:#57D9C9;
+    --amber:#F4B740;
+    --white:#EAF6F3;
+    --muted2:#5C7A80;
+    --line2:rgba(87,217,201,.18);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    height:100dvh;
+    background:var(--void);
+    background-image:
+      radial-gradient(circle at 50% 8%, rgba(87,217,201,.10), transparent 55%),
+      radial-gradient(circle at 1px 1px, rgba(234,246,243,.045) 1px, transparent 0);
+    background-size:auto, 30px 30px;
+    color:var(--white);
+    font-family:'IBM Plex Sans',system-ui,sans-serif;
+    display:flex; flex-direction:column;
+    padding:18px 26px 20px;
+    overflow:hidden;
+  }
+  button{font-family:inherit;}
+  :focus-visible{outline:2px solid var(--amber); outline-offset:3px;}
+  .kn{font-family:'Noto Sans Kannada',sans-serif;}
+  .mono{font-family:'IBM Plex Mono',ui-monospace,monospace; font-variant-numeric:tabular-nums;}
+
+  .corner-mark{position:fixed; top:16px; left:20px; z-index:5; display:flex; flex-direction:column; align-items:center; gap:6px;}
+  .chairman-photo{width:56px; height:56px; border-radius:50%; object-fit:cover; border:2px solid var(--cyan); box-shadow:0 4px 14px rgba(0,0,0,.45);}
+  .corner-date{font-size:.6rem; letter-spacing:.07em; text-transform:uppercase; color:var(--muted2); text-align:center; white-space:nowrap;}
+
+  .side-panel{position:fixed; top:18px; right:22px; z-index:5; display:flex; flex-direction:column; align-items:flex-end; gap:8px;}
+  .readout{display:flex; flex-direction:column; align-items:flex-end; gap:1px;}
+  .readout-label{font-size:.58rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted2);}
+  .readout-value{font-size:clamp(.9rem,1.6vw,1.1rem); font-weight:600; color:var(--amber); text-shadow:0 0 20px rgba(244,183,64,.3);}
+  .stat-mini{font-size:.68rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted2); text-align:right;}
+
+  .title-block{display:flex; flex-direction:column; align-items:center; gap:8px; text-align:center; padding:10px 0 0;}
+  .org-logo{height:40px; width:auto; margin-bottom:4px; filter:drop-shadow(0 4px 10px rgba(0,0,0,.4));}
+  .org-line1{font-weight:500; font-size:clamp(.72rem,1.3vw,.85rem); letter-spacing:.03em; color:var(--white); opacity:.9; font-family:'IBM Plex Sans';}
+  .org-line2{font-weight:800; font-size:clamp(1.2rem,2.6vw,1.7rem); color:var(--amber); text-wrap:balance;}
+
+  .network-wrap{flex:1; display:flex; align-items:center; justify-content:center; min-height:0; padding:2px 0;}
+  .network{position:relative; width:min(74vh,74vw,680px); aspect-ratio:1/1;}
+  .sweep{position:absolute; inset:6%; border-radius:50%; background:conic-gradient(from 0deg, transparent 0deg, rgba(87,217,201,.12) 26deg, transparent 60deg); animation:spin 7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  svg{position:absolute; inset:0; width:100%; height:100%; overflow:visible;}
+  .node-labels{position:absolute; inset:0; pointer-events:none;}
+  .node-label{
+    position:absolute; transform:translate(-50%,-50%); text-align:center; width:68px;
+    opacity:0; transition:opacity .3s ease;
+  }
+  .node-label.lit{opacity:1;}
+  .node-label .nl-kn{font-family:'Noto Sans Kannada',sans-serif; font-size:.6rem; color:var(--white); line-height:1.15;}
+  .node-label .nl-amt{font-family:'IBM Plex Mono'; font-size:.52rem; color:var(--amber); margin-top:1px;}
+
+  .hub-btn{
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    width:118px; height:118px; border-radius:50%; border:none; cursor:pointer;
+    background:radial-gradient(circle at 35% 30%, #123641, var(--panel) 70%);
+    box-shadow:0 0 0 5px rgba(87,217,201,.18), 0 0 40px rgba(87,217,201,.18), inset 0 0 0 2px rgba(87,217,201,.4);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+    animation:hubPulse 3s ease-in-out infinite; transition:transform .15s ease;
+    z-index:3;
+  }
+  .hub-btn:hover{transform:translate(-50%,-50%) scale(1.03);}
+  .hub-btn.pressed{transform:translate(-50%,-50%) scale(.9) !important;}
+  .hub-btn.done{animation:hubPulseDone 2.2s ease-in-out infinite;}
+  @keyframes hubPulse{0%,100%{box-shadow:0 0 0 5px rgba(87,217,201,.18),0 0 40px rgba(87,217,201,.18),inset 0 0 0 2px rgba(87,217,201,.4);} 50%{box-shadow:0 0 0 12px rgba(87,217,201,.08),0 0 54px rgba(87,217,201,.24),inset 0 0 0 2px rgba(87,217,201,.55);}}
+  @keyframes hubPulseDone{0%,100%{box-shadow:0 0 0 6px rgba(244,183,64,.2),0 0 46px rgba(244,183,64,.3),inset 0 0 0 2px rgba(244,183,64,.55);} 50%{box-shadow:0 0 0 14px rgba(244,183,64,.09),0 0 60px rgba(244,183,64,.36),inset 0 0 0 2px rgba(244,183,64,.7);}}
+  .hub-kn{font-family:'Noto Sans Kannada'; font-weight:700; font-size:1rem; color:var(--white); max-width:92px; line-height:1.15; text-align:center;}
+  .hub-en{font-family:'IBM Plex Mono'; font-size:.6rem; letter-spacing:.1em; color:var(--cyan);}
+  .hub-btn.done .hub-kn{font-size:.82rem;}
+  .hub-btn.done .hub-en{color:var(--amber);}
+
+  .spoke-base{stroke:rgba(92,122,128,.35); stroke-width:1.5; fill:none;}
+  .spoke-pulse{stroke:var(--amber); stroke-width:2.6; stroke-linecap:round; fill:none; filter:drop-shadow(0 0 5px rgba(244,183,64,.65)); opacity:0; transition:opacity .45s ease;}
+  .spoke-pulse.active{opacity:1;}
+  .node-circle{fill:var(--panel-2); stroke:var(--muted2); stroke-width:1.5; transition:fill .35s ease, stroke .35s ease;}
+  .node-circle.lit{fill:var(--amber); stroke:var(--amber);}
+  .node-check{opacity:0; transition:opacity .25s ease;}
+  .node-check.lit{opacity:1;}
+
+  .result-overlay{
+    position:fixed; inset:0; z-index:45; display:flex; align-items:center; justify-content:center;
+    background:rgba(7,16,24,.74); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+    opacity:0; pointer-events:none; transition:opacity .35s ease;
+    padding:24px;
+  }
+  .result-overlay.show{opacity:1; pointer-events:auto;}
+  .overlay-card{
+    background:linear-gradient(180deg, var(--panel), var(--panel-2));
+    border:1px solid var(--line2); border-radius:22px; padding:clamp(28px,4vw,48px) clamp(28px,5vw,56px);
+    max-width:640px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:10px;
+    box-shadow:0 30px 90px rgba(0,0,0,.5), 0 0 60px rgba(244,183,64,.08);
+    transform:scale(.92) translateY(8px); transition:transform .35s cubic-bezier(.2,.9,.3,1.1);
+  }
+  .result-overlay.show .overlay-card{transform:scale(1) translateY(0);}
+  .fr-eyebrow{font-family:'Noto Sans Kannada'; font-size:.85rem; color:var(--cyan);}
+  .fr-declaration{font-family:'IBM Plex Sans'; font-weight:700; font-size:clamp(1.6rem,4vw,2.7rem); color:var(--white); letter-spacing:-.01em; text-wrap:balance;}
+  .fr-sub{font-family:'IBM Plex Mono'; font-size:1rem; color:var(--amber); margin-top:4px;}
+  .ok-btn{
+    margin-top:16px; background:var(--amber); color:#1C1200; border:none;
+    padding:11px 34px; border-radius:999px; font-family:'IBM Plex Sans'; font-weight:700;
+    font-size:.85rem; letter-spacing:.05em; text-transform:uppercase; cursor:pointer;
+    box-shadow:0 10px 26px rgba(244,183,64,.35); transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .ok-btn:hover{transform:translateY(-1px); box-shadow:0 12px 32px rgba(244,183,64,.45);}
+  .ok-btn:active{transform:translateY(0);}
+
+  .replay-btn{
+    position:fixed; bottom:14px; right:16px; z-index:50;
+    background:transparent; border:1px solid rgba(234,246,243,.2); color:var(--muted2);
+    font-size:.66rem; letter-spacing:.08em; text-transform:uppercase; padding:6px 13px; border-radius:999px;
+    cursor:pointer; opacity:.3; transition:opacity .2s ease, color .2s ease, border-color .2s ease;
+  }
+  .replay-btn:hover, .replay-btn:focus-visible{opacity:1; color:var(--white); border-color:rgba(234,246,243,.45);}
+
+  @media (max-width:520px){
+    .corner-mark{font-size:.62rem;}
+    .side-panel{top:14px; right:14px; gap:5px;}
+    .stat-mini{font-size:.6rem;}
+    .readout-value{font-size:.85rem;}
+  }
+</style>
+
+<div class="corner-mark">
+  <img class="chairman-photo" id="chairmanPhoto" alt="Chairman" onerror="this.style.display='none'">
+  <div class="corner-date" id="cornerDate"></div>
+</div>
+
+<div class="side-panel">
+  <div class="stat-mini" id="statMini"></div>
+  <div class="readout">
+    <span class="readout-label">Settlement total</span>
+    <span class="readout-value mono" id="totalReadout">₹0</span>
+  </div>
+</div>
+
+<div class="title-block">
+  <img class="org-logo" src="assets/bamul-logo.png" alt="BAMUL logo" onerror="this.style.display='none'">
+  <div class="org-line1" id="orgLine1"></div>
+  <div class="org-line2 kn" id="orgLine2"></div>
+</div>
+
+<div class="network-wrap">
+  <div class="network" id="network">
+    <div class="sweep" id="sweep" aria-hidden="true"></div>
+    <svg id="svgNet" viewBox="0 0 800 800"></svg>
+    <div class="node-labels" id="nodeLabels"></div>
+    <button class="hub-btn" id="hubBtn" aria-label="Initiate bank transfer">
+      <span class="hub-kn" id="hubKn"></span>
+      <span class="hub-en" id="hubEn"></span>
+    </button>
+  </div>
+</div>
+
+<div class="result-overlay" id="resultOverlay">
+  <div class="overlay-card">
+    <div class="fr-eyebrow" id="frEyebrow"></div>
+    <div class="fr-declaration" id="frDeclaration"></div>
+    <div class="fr-sub mono" id="frSub"></div>
+    <button class="ok-btn" id="okBtn">OK</button>
+  </div>
+</div>
+
+<button class="replay-btn" id="replayBtn">&#8635; Reset</button>
+
+<script src="content.js"></script>
+<script>
+  var C = window.BAMUL_CONTENT;
+  var taluks = C.taluks;
+  var TOTAL_AMOUNT = C.totals.amount;
+  var fmt = new Intl.NumberFormat('en-IN');
+  var NS = 'http://www.w3.org/2000/svg';
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Playback speed for the post-click sequence — edit network.speedMultiplier in content.js.
+  // 1 = normal, 2 = twice as fast, 0.5 = half speed.
+  var SPEED = (C.network && C.network.speedMultiplier) || 1;
+  function ms(baseMs){ return baseMs / SPEED; }
+
+  document.getElementById('chairmanPhoto').src = C.org.chairmanPhoto;
+  document.getElementById('cornerDate').textContent = C.org.eventDate;
+  document.getElementById('orgLine1').textContent = C.org.line1;
+  document.getElementById('orgLine2').textContent = C.org.lineCombined;
+  document.getElementById('statMini').textContent = C.totals.taluks + ' taluks · ' + fmt.format(C.totals.beneficiaries) + ' claims';
+  var hubKnEl = document.getElementById('hubKn');
+  var hubEnEl = document.getElementById('hubEn');
+  hubKnEl.textContent = C.button.kn;
+  hubEnEl.textContent = C.button.enShort;
+  document.getElementById('frEyebrow').textContent = C.network.overlayEyebrow;
+  document.getElementById('frDeclaration').textContent = C.declaration.en;
+  document.getElementById('frSub').textContent = '₹' + fmt.format(C.totals.amount) + ' → ' + fmt.format(C.totals.beneficiaries) + ' farmers across ' + C.totals.taluks + ' taluks';
+
+  var svg = document.getElementById('svgNet');
+  var nodeLabels = document.getElementById('nodeLabels');
+  var hubBtn = document.getElementById('hubBtn');
+  var replayBtn = document.getElementById('replayBtn');
+  var totalReadout = document.getElementById('totalReadout');
+  var resultOverlay = document.getElementById('resultOverlay');
+  var sweep = document.getElementById('sweep');
+
+  var CX = 400, CY = 400, HUB_R = 65, PLACE_R = 260, LABEL_R = 378;
+  var minClaims = Math.min.apply(null, taluks.map(function(t){return t.claims;}));
+  var maxClaims = Math.max.apply(null, taluks.map(function(t){return t.claims;}));
+  var minNodeR = 14, maxNodeR = 26;
+
+  var spokePulses = [], nodeCircles = [], nodeChecks = [], labelEls = [];
+  var timeouts = [];
+  var running = false;
+
+  function nodeRadius(claims){
+    var t = (claims - minClaims) / (maxClaims - minClaims || 1);
+    return minNodeR + (maxNodeR - minNodeR) * Math.sqrt(t);
+  }
+
+  function buildNetwork(){
+    svg.innerHTML = '';
+    nodeLabels.innerHTML = '';
+    spokePulses = []; nodeCircles = []; nodeChecks = []; labelEls = [];
+
+    var hub = document.createElementNS(NS,'circle');
+    hub.setAttribute('cx',CX); hub.setAttribute('cy',CY); hub.setAttribute('r',HUB_R);
+    hub.setAttribute('fill','none'); hub.setAttribute('stroke','rgba(87,217,201,.35)'); hub.setAttribute('stroke-width','1.5');
+    svg.appendChild(hub);
+
+    taluks.forEach(function(t, i){
+      var angle = -Math.PI/2 + i * (2*Math.PI/taluks.length);
+      var nx = CX + PLACE_R*Math.cos(angle), ny = CY + PLACE_R*Math.sin(angle);
+      var lx = CX + LABEL_R*Math.cos(angle), ly = CY + LABEL_R*Math.sin(angle);
+      var r = nodeRadius(t.claims);
+      var ux = Math.cos(angle), uy = Math.sin(angle);
+      var sx = CX + ux*HUB_R, sy = CY + uy*HUB_R;
+      var ex = nx - ux*r, ey = ny - uy*r;
+
+      var base = document.createElementNS(NS,'line');
+      base.setAttribute('x1',sx); base.setAttribute('y1',sy); base.setAttribute('x2',ex); base.setAttribute('y2',ey);
+      base.setAttribute('class','spoke-base');
+      svg.appendChild(base);
+
+      var pulse = document.createElementNS(NS,'line');
+      pulse.setAttribute('x1',sx); pulse.setAttribute('y1',sy); pulse.setAttribute('x2',ex); pulse.setAttribute('y2',ey);
+      pulse.setAttribute('class','spoke-pulse');
+      if(reduced) pulse.classList.add('active');
+      svg.appendChild(pulse);
+      pulse.style.transitionDelay = ms(i * 130) + 'ms';
+      pulse.style.transitionDuration = ms(400) + 'ms';
+      spokePulses.push(pulse);
+
+      var circle = document.createElementNS(NS,'circle');
+      circle.setAttribute('cx',nx); circle.setAttribute('cy',ny); circle.setAttribute('r',r);
+      circle.setAttribute('class','node-circle');
+      if(reduced) circle.classList.add('lit');
+      svg.appendChild(circle);
+      nodeCircles.push(circle);
+
+      var check = document.createElementNS(NS,'text');
+      check.setAttribute('x',nx); check.setAttribute('y',ny+4);
+      check.setAttribute('text-anchor','middle');
+      check.setAttribute('class','node-check');
+      check.setAttribute('font-size','15');
+      check.setAttribute('fill','#0E1E27');
+      check.setAttribute('font-weight','700');
+      check.textContent = '✓';
+      if(reduced) check.classList.add('lit');
+      svg.appendChild(check);
+      nodeChecks.push(check);
+
+      var label = document.createElement('div');
+      label.className = 'node-label';
+      if(reduced) label.classList.add('lit');
+      label.style.left = (lx/800*100) + '%';
+      label.style.top = (ly/800*100) + '%';
+      label.innerHTML = '<div class="nl-kn">' + t.kn + '</div><div class="nl-amt">₹' + fmt.format(t.amount) + '</div>';
+      nodeLabels.appendChild(label);
+      labelEls.push(label);
+    });
+  }
+
+  function countUp(el, target, duration, prefix){
+    var start = performance.now();
+    function tick(now){
+      var p = Math.min(1, (now-start)/duration);
+      var eased = 1 - Math.pow(1-p, 3);
+      el.textContent = prefix + fmt.format(Math.round(target*eased));
+      if(p < 1) timeouts.push(requestAnimationFrame(tick));
+    }
+    requestAnimationFrame(tick);
+  }
+
+  function showResultOverlay(){
+    resultOverlay.classList.add('show');
+  }
+
+  function dismissOverlay(){
+    resultOverlay.classList.remove('show');
+  }
+
+  function triggerTransfer(){
+    if(running) return;
+    running = true;
+    hubBtn.classList.add('pressed');
+    if(sweep) sweep.style.animationPlayState = 'paused';
+
+    if(reduced){
+      spokePulses.forEach(function(p){ p.classList.add('active'); });
+      nodeCircles.forEach(function(c){ c.classList.add('lit'); });
+      nodeChecks.forEach(function(c){ c.classList.add('lit'); });
+      labelEls.forEach(function(l){ l.classList.add('lit'); });
+      totalReadout.textContent = '₹' + fmt.format(TOTAL_AMOUNT);
+      hubBtn.classList.remove('pressed');
+      hubBtn.classList.add('done');
+      hubKnEl.textContent = C.button.doneKn;
+      hubEnEl.textContent = C.button.doneEn;
+      showResultOverlay();
+      return;
+    }
+
+    var tId = setTimeout(function(){
+      hubBtn.classList.remove('pressed');
+      spokePulses.forEach(function(p){ p.classList.add('active'); });
+      taluks.forEach(function(t, i){
+        var delay = ms(i*130 + 420);
+        var id = setTimeout(function(){
+          nodeCircles[i].classList.add('lit');
+          nodeChecks[i].classList.add('lit');
+          labelEls[i].classList.add('lit');
+        }, delay);
+        timeouts.push(id);
+      });
+      countUp(totalReadout, TOTAL_AMOUNT, ms(taluks.length*130 + 600), '₹');
+      var endId = setTimeout(function(){
+        hubBtn.classList.add('done');
+        hubKnEl.textContent = C.button.doneKn;
+        hubEnEl.textContent = C.button.doneEn;
+        showResultOverlay();
+      }, ms(taluks.length*130 + 680));
+      timeouts.push(endId);
+    }, ms(140));
+    timeouts.push(tId);
+  }
+
+  function resetAll(){
+    timeouts.forEach(function(id){ clearTimeout(id); cancelAnimationFrame(id); });
+    timeouts = [];
+    running = false;
+    hubBtn.classList.remove('pressed','done');
+    hubKnEl.textContent = C.button.kn;
+    hubEnEl.textContent = C.button.enShort;
+    if(sweep) sweep.style.animationPlayState = 'running';
+    resultOverlay.classList.remove('show');
+    totalReadout.textContent = '₹0';
+    buildNetwork();
+  }
+
+  hubBtn.addEventListener('click', triggerTransfer);
+  replayBtn.addEventListener('click', resetAll);
+  document.getElementById('okBtn').addEventListener('click', dismissOverlay);
+  buildNetwork();
+</script>
