@@ -11,7 +11,7 @@ window.BAMUL_CONTENT = {
     period: "2026–27",
     // Relief Network / Relief Network (Chairman) pages
     chairmanPhoto: "assets/shri-dksuresh.png",
-    chairmanName: "Sri D.K. Suresh",
+    chairmanName: "Shri D.K. Suresh",
     chairmanTitle: "Chairman, BAMUL",
     eventDate: "15th September 2026"
   },
