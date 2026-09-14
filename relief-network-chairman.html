@@ -53,7 +53,8 @@
     background-size:auto, 30px 30px;
   }
 
-  .side-panel{display:flex; align-items:center; justify-content:flex-end; gap:18px; flex-wrap:wrap;}
+  .side-panel{display:none; align-items:center; justify-content:flex-end; gap:18px; flex-wrap:wrap; opacity:0; transition:opacity .4s ease;}
+  .side-panel.visible{display:flex; opacity:1;}
   .readout-card{background:var(--panel); border:1px solid var(--line2); border-radius:14px; padding:10px 22px; display:flex; flex-direction:column; align-items:flex-end; gap:2px;}
   .readout-label{font-size:.62rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted2);}
   .readout-value{font-size:clamp(1.5rem,2.6vw,2.1rem); font-weight:700; color:var(--amber); text-shadow:0 0 24px rgba(244,183,64,.35);}
@@ -161,7 +162,7 @@
 </div>
 
 <div class="right-col">
-  <div class="side-panel">
+  <div class="side-panel" id="sidePanel">
     <div class="stat-mini" id="statMini"></div>
     <div class="readout-card">
       <span class="readout-label">Settlement total</span>
@@ -231,6 +232,7 @@
   var hubBtn = document.getElementById('hubBtn');
   var replayBtn = document.getElementById('replayBtn');
   var totalReadout = document.getElementById('totalReadout');
+  var sidePanel = document.getElementById('sidePanel');
   var resultOverlay = document.getElementById('resultOverlay');
   var sweep = document.getElementById('sweep');
 
@@ -311,17 +313,6 @@
     });
   }
 
-  function countUp(el, target, duration, prefix){
-    var start = performance.now();
-    function tick(now){
-      var p = Math.min(1, (now-start)/duration);
-      var eased = 1 - Math.pow(1-p, 3);
-      el.textContent = prefix + fmt.format(Math.round(target*eased));
-      if(p < 1) timeouts.push(requestAnimationFrame(tick));
-    }
-    requestAnimationFrame(tick);
-  }
-
   function showResultOverlay(){
     resultOverlay.classList.add('show');
   }
@@ -342,6 +333,7 @@
       nodeChecks.forEach(function(c){ c.classList.add('lit'); });
       labelEls.forEach(function(l){ l.classList.add('lit'); });
       totalReadout.textContent = '₹' + fmt.format(TOTAL_AMOUNT);
+      sidePanel.classList.add('visible');
       hubBtn.classList.remove('pressed');
       hubBtn.classList.add('done');
       hubKnEl.textContent = C.button.doneKn;
@@ -362,8 +354,9 @@
         }, delay);
         timeouts.push(id);
       });
-      countUp(totalReadout, TOTAL_AMOUNT, ms(taluks.length*130 + 600), '₹');
       var endId = setTimeout(function(){
+        totalReadout.textContent = '₹' + fmt.format(TOTAL_AMOUNT);
+        sidePanel.classList.add('visible');
         hubBtn.classList.add('done');
         hubKnEl.textContent = C.button.doneKn;
         hubEnEl.textContent = C.button.doneEn;
@@ -383,6 +376,7 @@
     hubEnEl.textContent = C.button.enShort;
     if(sweep) sweep.style.animationPlayState = 'running';
     resultOverlay.classList.remove('show');
+    sidePanel.classList.remove('visible');
     totalReadout.textContent = '₹0';
     buildNetwork();
   }
