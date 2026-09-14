@@ -9,8 +9,10 @@ window.BAMUL_CONTENT = {
     // Relief Network page only: line2 + line3 combined onto one line.
     lineCombined: "ರಾಸು ಮರಣ ಪರಿಹಾರ ವಿತರಣಾ ಕಾರ್ಯಕ್ರಮ",
     period: "2026–27",
-    // Relief Network page corner mark
+    // Relief Network / Relief Network (Chairman) pages
     chairmanPhoto: "assets/shri-dksuresh.png",
+    chairmanName: "Sri D.K. Suresh",
+    chairmanTitle: "Chairman, BAMUL",
     eventDate: "15th September 2026"
   },
 
