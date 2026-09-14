@@ -29,7 +29,12 @@
   .mono{font-family:'IBM Plex Mono',ui-monospace,monospace; font-variant-numeric:tabular-nums;}
 
   /* ---------- left: chairman photo panel ---------- */
-  .photo-panel{position:relative; overflow:hidden; background:var(--panel);}
+  .photo-panel{
+    position:relative; overflow:hidden;
+    background:var(--void);
+    background-image:radial-gradient(circle at 1px 1px, rgba(234,246,243,.045) 1px, transparent 0);
+    background-size:30px 30px;
+  }
   #chairmanPhoto{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:50% 18%;}
   .photo-tint{position:absolute; inset:0; background:linear-gradient(200deg, rgba(7,16,24,.05), rgba(87,217,201,.1)); pointer-events:none;}
   .photo-fade-r{position:absolute; top:0; right:-1px; bottom:0; width:38%; background:linear-gradient(90deg, transparent, var(--void)); pointer-events:none;}
